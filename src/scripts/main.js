@@ -174,6 +174,8 @@ async function loadGuestFromToken(token) {
 
     if (data.rsvp_status) {
       document.getElementById('rsvp-status').value = data.rsvp_status;
+      showConfirmedView(data);
+      return;
     }
     if (data.food_restrictions) {
       document.getElementById('rsvp-food').value = data.food_restrictions;
@@ -202,6 +204,31 @@ function autofillForm(name, passes) {
   if (nameInput) nameInput.value = name;
   const guestsSelect = document.getElementById('rsvp-guests');
   if (guestsSelect) guestsSelect.value = String(passes);
+}
+
+function showConfirmedView(data) {
+  const form = document.getElementById('rsvp-form');
+  const confirmed = document.getElementById('rsvp-confirmed');
+  const details = document.getElementById('rsvp-confirmed-details');
+  if (!confirmed || !details) return;
+  if (form) form.classList.add('hidden');
+  confirmed.classList.remove('hidden');
+
+  const statusText = data.rsvp_status === 'yes'
+    ? '¡Sí asistiré! 🎉'
+    : 'No podré asistir 😢';
+  const food = data.food_restrictions || 'Ninguna';
+  const song = data.song || 'Ninguna';
+  const message = data.message || '—';
+
+  details.innerHTML = `
+    <div class="flex justify-between"><span class="font-semibold text-stone-500">Invitado:</span><span>${escHtml(data.name)}</span></div>
+    <div class="flex justify-between"><span class="font-semibold text-stone-500">Pases:</span><span>${data.passes}</span></div>
+    <div class="flex justify-between"><span class="font-semibold text-stone-500">Estado:</span><span>${statusText}</span></div>
+    <div class="flex justify-between"><span class="font-semibold text-stone-500">Alimentación:</span><span>${escHtml(food)}</span></div>
+    <div class="flex justify-between"><span class="font-semibold text-stone-500">Canción:</span><span>${escHtml(song)}</span></div>
+    <div class="pt-2 border-t border-stone-200 mt-2"><span class="font-semibold text-stone-500 block mb-1">Mensaje:</span><span class="italic text-sm">${escHtml(message)}</span></div>
+  `;
 }
 
 // --- RSVP Form ---
@@ -243,6 +270,7 @@ function autofillForm(name, passes) {
     }
 
     modal.classList.remove('hidden');
+    showConfirmedView(guestData || { name: '', passes: '', rsvp_status: rsvpStatus, food_restrictions: foodRestrictions, song: song, message: message });
   });
 })();
 
@@ -258,6 +286,12 @@ function reiniciarFormulario() {
     if (guestData.song) document.getElementById('rsvp-song').value = guestData.song;
     if (guestData.message) document.getElementById('rsvp-message').value = guestData.message;
   }
+}
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
 }
 
 // --- Expose to window for onclick handlers ---
