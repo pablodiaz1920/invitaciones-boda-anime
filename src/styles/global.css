@@ -1,1 +1,127 @@
 @import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+@theme {
+  --font-title: "Cinzel Decorative", serif;
+  --font-serif-elegant: "Playfair Display", serif;
+  --font-sans: Montserrat, sans-serif;
+
+  --color-pirate-red: #b22222;
+  --color-pirate-gold: #ffd700;
+  --color-pirate-dark: #1c1917;
+  --color-ninja-purple: #4a154b;
+  --color-ninja-red: #d32f2f;
+  --color-ninja-cream: #fdf6e2;
+  --color-wedding-rose: #9f1239;
+  --color-wedding-gold: #b45309;
+  --color-wedding-bg: #fbf8f5;
+  --color-wedding-dark: #2d2320;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fade-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(178, 34, 34, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(178, 34, 34, 0.6); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes card-lift {
+  0%, 100% { transform: translateY(0); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+  50% { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); }
+}
+
+@utility float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+@utility anime-border {
+  border: 4px solid #b22222;
+  box-shadow: 0 0 15px rgba(178, 34, 34, 0.2), inset 0 0 15px rgba(178, 34, 34, 0.1);
+}
+
+@utility text-xxs {
+  font-size: 0.65rem;
+}
+
+.anim-fade-in-up,
+.anim-fade-in-left,
+.anim-fade-in-right,
+.anim-scale-in {
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.anim-fade-in-up { transform: translateY(40px); }
+.anim-fade-in-left { transform: translateX(-40px); }
+.anim-fade-in-right { transform: translateX(40px); }
+.anim-scale-in { transform: scale(0.85); }
+
+.anim-fade-in-up.anim-visible,
+.anim-fade-in-left.anim-visible,
+.anim-fade-in-right.anim-visible,
+.anim-scale-in.anim-visible {
+  opacity: 1;
+  transform: translate(0) scale(1);
+}
+
+.anim-card {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.anim-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.anim-card:active {
+  transform: translateY(-2px);
+}
+
+.anim-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
