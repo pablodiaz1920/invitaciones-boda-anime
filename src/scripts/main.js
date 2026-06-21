@@ -260,40 +260,8 @@ function reiniciarFormulario() {
   }
 }
 
-// --- Panel Novios ---
-function togglePanelNovios() {
-  const panel = document.getElementById('panel-novios-section');
-  if (!panel) return;
-  panel.classList.toggle('hidden');
-  if (!panel.classList.contains('hidden')) panel.scrollIntoView({ behavior: 'smooth' });
-}
-
-function generarInvitacionLink() {
-  const name = document.getElementById('gen-name')?.value.trim();
-  const passes = document.getElementById('gen-passes')?.value;
-  let baseUrl = document.getElementById('gen-base-url')?.value.trim();
-  if (!name) { mostrarToast('Por favor, escribe el nombre del invitado'); return; }
-  if (!baseUrl) baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
-  if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-  const generatedUrl = `${baseUrl}/?g=${encodeURIComponent(name)}&p=${passes}`;
-  document.getElementById('gen-result-url').value = generatedUrl;
-  const message = `✨ ¡HOLA! ${name.toUpperCase()} ✨\n\nTenemos el gran honor de invitarlos a formar parte de nuestra tripulación en la aventura más importante de nuestras vidas: ¡NUESTRA BODA! 💍☠️🍃\n\nHemos preparado una invitación web especial interactiva para ustedes, donde podrán ver la cuenta regresiva, la historia de nuestra alianza y confirmar su asistencia.\n\n👇 Entren a su pase personalizado aquí:\n${generatedUrl}\n\n¡Los esperamos en la Gran Ruta de la Vida el 30 de enero de 2027! 🌸⚔️`;
-  document.getElementById('gen-result-msg').value = message;
-  document.getElementById('gen-result-container').classList.remove('hidden');
-  mostrarToast('¡Invitación generada exitosamente!');
-}
-
-function compartirWhatsAppDirecto() {
-  const text = document.getElementById('gen-result-msg')?.value;
-  if (!text) return;
-  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-}
-
 // --- Expose to window for onclick handlers ---
 window.mostrarToast = mostrarToast;
 window.copiarCuenta = copiarCuenta;
 window.copiarAlPortapapelesId = copiarAlPortapapelesId;
 window.reiniciarFormulario = reiniciarFormulario;
-window.togglePanelNovios = togglePanelNovios;
-window.generarInvitacionLink = generarInvitacionLink;
-window.compartirWhatsAppDirecto = compartirWhatsAppDirecto;

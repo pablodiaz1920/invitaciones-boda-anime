@@ -1,75 +1,3 @@
-<section id="panel-novios-section" class="hidden py-12 bg-stone-900 text-white px-4 md:px-6 border-t-4 border-wedding-gold">
-  <div class="max-w-3xl mx-auto space-y-6">
-    <div class="flex items-center justify-between">
-      <h3 class="font-title text-lg md:text-xl text-pirate-gold flex items-center space-x-2">
-        <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>Creador de Enlaces para Invitados</span>
-      </h3>
-      <button onclick="togglePanelNovios()" class="text-stone-400 hover:text-white transition text-xs uppercase font-bold">Cerrar</button>
-    </div>
-
-    <p class="text-xs text-stone-300">
-      Escribe el nombre del invitado y su número de pases. Este panel generará un enlace único que prellenará la invitación y creará un mensaje de WhatsApp ideal para enviar de inmediato.
-    </p>
-
-    <div class="bg-stone-800 p-5 rounded-2xl border border-stone-700 space-y-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-[10px] uppercase font-bold text-stone-400 mb-2">Nombre del Invitado(s)</label>
-          <input type="text" id="gen-name" placeholder="Ej: Tío Carlos y Tía Sofía" class="w-full bg-stone-700 border border-stone-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-wedding-gold text-white" />
-        </div>
-        <div>
-          <label class="block text-[10px] uppercase font-bold text-stone-400 mb-2">Número de Pases Reservados</label>
-          <select id="gen-passes" class="w-full bg-stone-700 border border-stone-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-wedding-gold text-white">
-            <option value="1">1 Pase</option>
-            <option value="2" selected>2 Pases</option>
-            <option value="3">3 Pases</option>
-            <option value="4">4 Pases</option>
-            <option value="5">5 Pases</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-[10px] uppercase font-bold text-stone-400 mb-2">URL Base de tu Web de Boda (Opcional)</label>
-        <input type="text" id="gen-base-url" placeholder="Dejar vacío para usar la dirección actual" class="w-full bg-stone-700 border border-stone-600 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-wedding-gold text-white" />
-      </div>
-
-      <div class="pt-2">
-        <button onclick="generarInvitacionLink()" class="w-full bg-wedding-gold hover:bg-amber-600 text-stone-950 font-bold uppercase tracking-wider text-xs py-3 rounded-full transition flex items-center justify-center space-x-2">
-          <i class="fa-solid fa-link"></i>
-          <span>Generar Link e Invitación</span>
-        </button>
-      </div>
-    </div>
-
-    <div id="gen-result-container" class="hidden bg-stone-800 p-5 rounded-2xl border border-stone-700 space-y-4">
-      <div>
-        <label class="block text-[10px] uppercase font-bold text-stone-400 mb-1">Enlace Personalizado Único:</label>
-        <div class="flex space-x-2">
-          <input type="text" id="gen-result-url" readonly class="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-2 text-xs text-amber-400 outline-none" />
-          <button onclick="copiarAlPortapapelesId('gen-result-url')" class="bg-stone-700 hover:bg-stone-600 px-4 rounded-xl text-xs font-bold transition">Copiar</button>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-[10px] uppercase font-bold text-stone-400 mb-1">Mensaje de WhatsApp Sugerido:</label>
-        <textarea id="gen-result-msg" rows="4" readonly class="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-2 text-xs text-stone-200 outline-none font-sans"></textarea>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-2">
-        <button onclick="copiarAlPortapapelesId('gen-result-msg')" class="flex-1 bg-stone-700 hover:bg-stone-600 text-white font-bold uppercase text-xxs py-2.5 rounded-full transition">
-          Copiar Mensaje
-        </button>
-        <button onclick="compartirWhatsAppDirecto()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold uppercase text-xxs py-2.5 rounded-full transition flex items-center justify-center space-x-1">
-          <i class="fa-brands fa-whatsapp text-lg"></i>
-          <span>Enviar por WhatsApp</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
-
 <footer class="bg-stone-950 text-white py-12 md:py-16 px-4 md:px-6 text-center relative overflow-hidden">
   <div class="max-w-4xl mx-auto space-y-6 relative z-10">
     <h2 class="anim-fade-in-up font-title text-2xl md:text-3xl text-pirate-gold">¡Nos vemos en la Gran Ruta de la Vida!</h2>
@@ -91,9 +19,6 @@
       <a href="admin" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold uppercase tracking-widest transition">
         <i class="fa-solid fa-shield-halved mr-1"></i>Panel de Administración
       </a>
-      <button onclick="togglePanelNovios()" class="text-[10px] text-stone-500 hover:text-wedding-gold font-bold uppercase tracking-widest transition">
-        <i class="fa-solid fa-lock mr-1"></i>Generador Rápido de Links
-      </button>
     </div>
   </div>
 </footer>
