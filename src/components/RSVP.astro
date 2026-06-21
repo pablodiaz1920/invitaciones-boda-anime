@@ -1,8 +1,3 @@
----
-const { guest, passes } = Astro.props;
-const decodedName = guest ? decodeURIComponent(guest) : '';
----
-
 <section id="rsvp" class="py-12 md:py-20 px-4 md:px-6 max-w-4xl mx-auto">
   <div class="anim-scale-in anime-border bg-ninja-cream rounded-3xl p-5 md:p-12 shadow-2xl relative">
     <div class="text-center space-y-4 mb-8">
@@ -16,7 +11,7 @@ const decodedName = guest ? decodeURIComponent(guest) : '';
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label class="block text-xs uppercase font-bold text-wedding-rose tracking-wider mb-2">Nombre Completo</label>
-          <input type="text" id="rsvp-name" value={decodedName} required placeholder="Escribe tu nombre y apellido" class="w-full px-4 py-3 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm transition bg-white/70" />
+          <input type="text" id="rsvp-name" required placeholder="Escribe tu nombre y apellido" class="w-full px-4 py-3 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm transition bg-white/70" />
         </div>
         <div>
           <label class="block text-xs uppercase font-bold text-wedding-rose tracking-wider mb-2">¿Asistirás a la Alianza?</label>
@@ -32,11 +27,11 @@ const decodedName = guest ? decodeURIComponent(guest) : '';
         <div>
           <label class="block text-xs uppercase font-bold text-wedding-rose tracking-wider mb-2">Número de Invitados / Pases</label>
           <select id="rsvp-guests" class="w-full px-4 py-3 rounded-xl border border-rose-200 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm transition bg-white/70">
-            <option value="1" selected={passes == '1'}>Solo yo (1 Persona)</option>
-            <option value="2" selected={passes == '2'}>Yo + 1 Acompañante (2 Personas)</option>
-            <option value="3" selected={passes == '3'}>Grupo / Familia (3 Personas)</option>
-            <option value="4" selected={passes == '4'}>Grupo / Familia (4 Personas)</option>
-            <option value="5" selected={passes == '5'}>Grupo / Familia (5 Personas)</option>
+            <option value="1">Solo yo (1 Persona)</option>
+            <option value="2">Yo + 1 Acompañante (2 Personas)</option>
+            <option value="3">Grupo / Familia (3 Personas)</option>
+            <option value="4">Grupo / Familia (4 Personas)</option>
+            <option value="5">Grupo / Familia (5 Personas)</option>
           </select>
         </div>
         <div>

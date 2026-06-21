@@ -1,4 +1,10 @@
-// --- Scroll Animations (Intersection Observer) ---
+import { supabase } from '../lib/supabase.js';
+
+// --- Guest Session State ---
+let guestToken = null;
+let guestData = null;
+
+// --- Scroll Animations ---
 (function initScrollAnimations() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -58,7 +64,6 @@
 // --- Smooth Scroll & Active Section ---
 (function initSmoothScroll() {
   const HEADER_OFFSET = 70;
-
   document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', e => {
       const href = link.getAttribute('href');
@@ -70,36 +75,24 @@
       window.scrollTo({ top, behavior: 'smooth' });
     });
   });
-
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('nav a[href^="#"], #mobile-menu a[href^="#"]');
-
   function updateActiveSection() {
     let current = '';
     const scrollPos = window.scrollY + HEADER_OFFSET + 100;
-
     sections.forEach(section => {
       const sectionTop = section.offsetTop;
       const sectionHeight = section.offsetHeight;
-      if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-        current = section.getAttribute('id');
-      }
+      if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) current = section.getAttribute('id');
     });
-
     navLinks.forEach(link => {
       link.classList.remove('text-wedding-rose', 'font-bold');
-      if (link.getAttribute('href') === `#${current}`) {
-        link.classList.add('text-wedding-rose', 'font-bold');
-      }
+      if (link.getAttribute('href') === `#${current}`) link.classList.add('text-wedding-rose', 'font-bold');
     });
   }
-
   let ticking = false;
   window.addEventListener('scroll', () => {
-    if (!ticking) {
-      requestAnimationFrame(() => { updateActiveSection(); ticking = false; });
-      ticking = true;
-    }
+    if (!ticking) { requestAnimationFrame(() => { updateActiveSection(); ticking = false; }); ticking = true; }
   });
   updateActiveSection();
 })();
@@ -146,13 +139,109 @@ function copiarAlPortapapelesId(id) {
   mostrarToast('¡Copiado con éxito!');
 }
 
+// --- Guest Session: init from ?token or ?g/?p ---
+(function initGuestSession() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const guestName = params.get('g');
+  const guestPasses = params.get('p');
+
+  if (token) {
+    guestToken = token;
+    loadGuestFromToken(token);
+  } else if (guestName) {
+    showBanner(decodeURIComponent(guestName), guestPasses || '1');
+    autofillForm(decodeURIComponent(guestName), guestPasses || '1');
+  }
+})();
+
+async function loadGuestFromToken(token) {
+  try {
+    const { data, error } = await supabase
+      .from('guests')
+      .select('*')
+      .eq('token', token)
+      .single();
+
+    if (error || !data) {
+      console.warn('Token no encontrado:', error);
+      return;
+    }
+
+    guestData = data;
+    showBanner(data.name, data.passes);
+    autofillForm(data.name, data.passes);
+
+    if (data.rsvp_status) {
+      document.getElementById('rsvp-status').value = data.rsvp_status;
+    }
+    if (data.food_restrictions) {
+      document.getElementById('rsvp-food').value = data.food_restrictions;
+    }
+    if (data.song) {
+      document.getElementById('rsvp-song').value = data.song;
+    }
+    if (data.message) {
+      document.getElementById('rsvp-message').value = data.message;
+    }
+  } catch (err) {
+    console.error('Error al cargar invitado:', err);
+  }
+}
+
+function showBanner(name, passes) {
+  const banner = document.getElementById('personalized-banner');
+  const text = document.getElementById('personalized-text');
+  if (!banner || !text) return;
+  text.innerHTML = `¡Hola, <strong>${name}</strong>! Hemos reservado <strong>${passes} ${passes == 1 ? 'pase' : 'pases'}</strong> para ti en nuestra Gran Alianza.`;
+  banner.classList.remove('hidden');
+}
+
+function autofillForm(name, passes) {
+  const nameInput = document.getElementById('rsvp-name');
+  if (nameInput) nameInput.value = name;
+  const guestsSelect = document.getElementById('rsvp-guests');
+  if (guestsSelect) guestsSelect.value = String(passes);
+}
+
 // --- RSVP Form ---
 (function initRSVP() {
   const form = document.getElementById('rsvp-form');
   const modal = document.getElementById('rsvp-success-modal');
   if (!form || !modal) return;
-  form.addEventListener('submit', (e) => {
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const rsvpStatus = document.getElementById('rsvp-status')?.value;
+    const foodRestrictions = document.getElementById('rsvp-food')?.value || null;
+    const song = document.getElementById('rsvp-song')?.value || null;
+    const message = document.getElementById('rsvp-message')?.value || null;
+
+    if (guestToken) {
+      try {
+        const { error } = await supabase
+          .from('guests')
+          .update({
+            rsvp_status: rsvpStatus,
+            food_restrictions: foodRestrictions,
+            song: song,
+            message: message
+          })
+          .eq('token', guestToken);
+
+        if (error) {
+          console.error('Error al guardar RSVP:', error);
+          mostrarToast('Error al guardar. Intenta de nuevo.');
+          return;
+        }
+      } catch (err) {
+        console.error('Error en RSVP:', err);
+        mostrarToast('Error de conexión. Intenta de nuevo.');
+        return;
+      }
+    }
+
     modal.classList.remove('hidden');
   });
 })();
@@ -162,6 +251,13 @@ function reiniciarFormulario() {
   const modal = document.getElementById('rsvp-success-modal');
   if (form) form.reset();
   if (modal) modal.classList.add('hidden');
+  if (guestData) {
+    autofillForm(guestData.name, guestData.passes);
+    if (guestData.rsvp_status) document.getElementById('rsvp-status').value = guestData.rsvp_status;
+    if (guestData.food_restrictions) document.getElementById('rsvp-food').value = guestData.food_restrictions;
+    if (guestData.song) document.getElementById('rsvp-song').value = guestData.song;
+    if (guestData.message) document.getElementById('rsvp-message').value = guestData.message;
+  }
 }
 
 // --- Panel Novios ---
@@ -192,19 +288,6 @@ function compartirWhatsAppDirecto() {
   if (!text) return;
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
 }
-
-// --- URL Params (autofill RSVP name/guests) ---
-(function checkURLParameters() {
-  const params = new URLSearchParams(window.location.search);
-  const guest = params.get('g');
-  const passes = params.get('p');
-  if (guest) {
-    const nameInput = document.getElementById('rsvp-name');
-    if (nameInput) nameInput.value = decodeURIComponent(guest);
-    const guestsSelect = document.getElementById('rsvp-guests');
-    if (guestsSelect && passes) guestsSelect.value = passes;
-  }
-})();
 
 // --- Expose to window for onclick handlers ---
 window.mostrarToast = mostrarToast;

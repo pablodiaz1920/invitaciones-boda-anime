@@ -10,21 +10,17 @@ import Itinerary from '../components/Itinerary.astro';
 import Gifts from '../components/Gifts.astro';
 import RSVP from '../components/RSVP.astro';
 import Footer from '../components/Footer.astro';
-
-const url = new URL(Astro.request.url);
-const guest = url.searchParams.get('g');
-const passes = url.searchParams.get('p');
 ---
 
 <Layout>
   <Navbar />
-  <PersonalizedBanner guest={guest} passes={passes} />
+  <PersonalizedBanner />
   <Hero />
   <Countdown />
   <History />
   <Details />
   <Itinerary />
   <Gifts />
-  <RSVP guest={guest} passes={passes} />
+  <RSVP />
   <Footer />
 </Layout>

@@ -1,17 +1,7 @@
----
-const { guest, passes } = Astro.props;
----
-
-{
-  guest && (
-    <div id="personalized-banner" class="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 px-4 text-center font-semibold text-xs md:text-sm shadow-md relative z-30">
-      <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-        <span class="text-xl animate-bounce"><i class="fa-solid fa-scroll"></i></span>
-        <span id="personalized-text">
-          ¡Hola, <strong>{decodeURIComponent(guest)}</strong>! Hemos reservado <strong>{passes} {passes == 1 ? 'pase' : 'pases'}</strong> para ti en nuestra Gran Alianza.
-        </span>
-        <a href="#rsvp" class="bg-wedding-dark/30 hover:bg-wedding-dark/50 px-4 py-1 rounded-full text-[10px] md:text-xs uppercase font-bold tracking-wider transition">Confirmar Ahora</a>
-      </div>
-    </div>
-  )
-}
+<div id="personalized-banner" class="hidden bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 px-4 text-center font-semibold text-xs md:text-sm shadow-md relative z-30">
+  <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+    <span class="text-xl animate-bounce"><i class="fa-solid fa-scroll"></i></span>
+    <span id="personalized-text">¡Hola! Tienes pases reservados para nuestra boda.</span>
+    <a href="#rsvp" class="bg-wedding-dark/30 hover:bg-wedding-dark/50 px-4 py-1 rounded-full text-[10px] md:text-xs uppercase font-bold tracking-wider transition">Confirmar Ahora</a>
+  </div>
+</div>
