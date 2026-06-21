@@ -139,9 +139,10 @@ window.addGuest = async function () {
   }
   errorEl?.classList.add('hidden');
 
+  const token = crypto.randomUUID();
   const { data, error } = await supabase
     .from('guests')
-    .insert({ name, passes: parseInt(passes) })
+    .insert({ name, passes: parseInt(passes), token })
     .select();
 
   if (error) {
