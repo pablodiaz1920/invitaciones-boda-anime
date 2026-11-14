@@ -1,0 +1,61 @@
+---
+import img0356 from '../assets/IMG_0356.webp';
+import img0481 from '../assets/IMG_0481.webp';
+import img0539 from '../assets/IMG_0539.webp';
+import img0591 from '../assets/IMG_0591.webp';
+import img0623 from '../assets/IMG_0623.webp';
+import img0655 from '../assets/IMG_0655.webp';
+import img0873 from '../assets/IMG_0873.webp';
+import img1031 from '../assets/IMG_1031.webp';
+
+const photos = [
+  { src: img0356, caption: 'El Encuentro en el Mar de Konoha', rotate: 'rotate-[-2deg] hover:rotate-0' },
+  { src: img0481, caption: 'Entrenamiento Ninja Secreto', rotate: 'rotate-[1.5deg] hover:rotate-0' },
+  { src: img0539, caption: 'La Gran Ruta Comienza', rotate: 'rotate-[-1deg] hover:rotate-0' },
+  { src: img0591, caption: 'El Tesoro del Destino', rotate: 'rotate-[2deg] hover:rotate-0' },
+  { src: img0623, caption: 'Promesa de Amor Eterno', rotate: 'rotate-[-1.5deg] hover:rotate-0' },
+  { src: img0655, caption: 'Aventuras en la Isla', rotate: 'rotate-[1deg] hover:rotate-0' },
+  { src: img0873, caption: 'El Camino Ninja Juntos', rotate: 'rotate-[-2.5deg] hover:rotate-0' },
+  { src: img1031, caption: 'Nuestro One Piece', rotate: 'rotate-[2.5deg] hover:rotate-0' },
+];
+
+const stripPhotos = [img0356, img0481, img0539, img0591, img0623, img0655, img0873, img1031];
+---
+
+<section id="galeria" class="py-12 md:py-20 px-4 md:px-6 max-w-6xl mx-auto">
+  <div class="text-center max-w-2xl mx-auto mb-10 md:mb-16 space-y-3">
+    <h2 class="anim-fade-in-up font-title text-2xl sm:text-3xl md:text-4xl text-wedding-rose">Bitácora de Fotos de la Alianza</h2>
+    <div class="h-1 w-24 bg-wedding-gold mx-auto rounded-full"></div>
+    <p class="anim-fade-in-up text-stone-600 font-serif-elegant text-sm md:text-base italic">Momentos que escribimos juntos en nuestro propio pergamino de aventuras.</p>
+  </div>
+
+  <!-- Cinta de película animada -->
+  <div class="anim-fade-in-up relative -mx-4 md:-mx-6 mb-12 md:mb-16 overflow-hidden bg-stone-950 py-4 border-y-4 border-rose-800/40 marquee">
+    <div class="marquee-track flex w-max will-change-transform">
+      {[0, 1].map((copy) => (
+        <div class="flex gap-3 pr-3" aria-hidden={copy === 1}>
+          {stripPhotos.map((photo) => (
+            <img src={photo.src} alt="" class="h-20 md:h-28 w-auto rounded-lg object-cover border-2 border-pirate-gold/40 shadow-lg" loading="lazy" />
+          ))}
+        </div>
+      ))}
+    </div>
+    <div class="absolute inset-y-0 left-0 w-16 bg-linear-to-r from-stone-950 to-transparent pointer-events-none"></div>
+    <div class="absolute inset-y-0 right-0 w-16 bg-linear-to-l from-stone-950 to-transparent pointer-events-none"></div>
+  </div>
+
+  <!-- Galería estilo polaroid -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+    {photos.map((photo) => (
+      <figure class={`anim-fade-in-up anim-card ${photo.rotate} transition-transform duration-500 bg-white p-3 pb-4 rounded-xl shadow-lg border border-rose-100`}>
+        <div class="overflow-hidden rounded-lg aspect-[3/4]">
+          <img src={photo.src.src} alt={photo.caption} class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" loading="lazy" />
+        </div>
+        <figcaption class="mt-3 text-center">
+          <span class="block text-[10px] md:text-xs font-bold uppercase tracking-widest text-wedding-rose font-title">{photo.caption}</span>
+          <span class="block text-[9px] md:text-[10px] text-stone-400 mt-1 italic font-serif-elegant">La Alianza Shinobi-Pirata</span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</section>
