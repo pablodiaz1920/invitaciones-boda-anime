@@ -1,13 +1,12 @@
 import { supabase } from '../lib/supabase.js';
 
-// --- State ---
-let currentSession = null;
+const COLS = 9;
+let guests = [];
 
 // --- Init ---
 (async function initAdmin() {
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.user) {
-    currentSession = session;
     showDashboard();
     loadGuests();
   } else {
@@ -17,17 +16,13 @@ let currentSession = null;
 
 // --- UI toggle ---
 function showLogin() {
-  const login = document.getElementById('admin-login');
-  const dash = document.getElementById('admin-dashboard');
-  if (login) login.classList.remove('hidden');
-  if (dash) dash.classList.add('hidden');
+  document.getElementById('admin-login')?.classList.remove('hidden');
+  document.getElementById('admin-dashboard')?.classList.add('hidden');
 }
 
 function showDashboard() {
-  const login = document.getElementById('admin-login');
-  const dash = document.getElementById('admin-dashboard');
-  if (login) login.classList.add('hidden');
-  if (dash) dash.classList.remove('hidden');
+  document.getElementById('admin-login')?.classList.add('hidden');
+  document.getElementById('admin-dashboard')?.classList.remove('hidden');
 }
 
 // --- Login ---
@@ -35,32 +30,30 @@ window.handleAdminLogin = async function () {
   const email = document.getElementById('admin-email')?.value.trim();
   const password = document.getElementById('admin-password')?.value;
   const errorEl = document.getElementById('admin-login-error');
-  if (!email || !password) { if (errorEl) errorEl.textContent = 'Ingresa email y contraseña'; errorEl?.classList.remove('hidden'); return; }
+  const showError = (msg) => { if (errorEl) { errorEl.textContent = msg; errorEl.classList.remove('hidden'); } };
+  if (!email || !password) return showError('Ingresa email y contraseña');
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    if (errorEl) errorEl.textContent = error.message;
-    errorEl?.classList.remove('hidden');
-    return;
-  }
-  currentSession = data.session;
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return showError(error.message);
+  errorEl?.classList.add('hidden');
   showDashboard();
   loadGuests();
 };
 
 window.handleAdminLogout = async function () {
   await supabase.auth.signOut();
-  currentSession = null;
   showLogin();
 };
 
 // --- Load guests ---
-async function loadGuests() {
+function tableMessage(text, cls = 'text-stone-400') {
   const tbody = document.getElementById('guests-table-body');
-  const stats = document.getElementById('admin-stats');
-  if (!tbody) return;
+  if (tbody) tbody.innerHTML = `<tr><td colspan="${COLS}" class="text-center py-8 ${cls}">${escHtml(text)}</td></tr>`;
+}
 
-  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-stone-400">Cargando invitados...</td></tr>';
+async function loadGuests() {
+  const stats = document.getElementById('admin-stats');
+  tableMessage('Cargando invitados...');
 
   const { data, error } = await supabase
     .from('guests')
@@ -68,35 +61,49 @@ async function loadGuests() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-red-400">Error al cargar. Verifica que la tabla "guests" existe.</td></tr>';
+    tableMessage('Error al cargar. Verifica que ejecutaste supabase-setup.sql.', 'text-red-400');
     return;
   }
 
-  if (!data || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-stone-400">Aún no hay invitados. ¡Añade el primero!</td></tr>';
+  guests = data || [];
+  if (guests.length === 0) {
+    // Con RLS, un usuario que no está en admin_emails ve la tabla vacía
+    tableMessage('No hay invitados (o tu email no está en la tabla admin_emails).');
     if (stats) stats.innerHTML = '<p class="text-stone-400">0 invitados registrados</p>';
     return;
   }
 
-  renderGuests(data);
-  renderStats(data);
+  renderGuests(guests);
+  renderStats(guests);
 }
 
 function renderStats(data) {
   const stats = document.getElementById('admin-stats');
   if (!stats) return;
-  const total = data.length;
-  const confirmed = data.filter(g => g.rsvp_status === 'yes').length;
-  const declined = data.filter(g => g.rsvp_status === 'no').length;
-  const pending = total - confirmed - declined;
+  const sum = (arr, fn) => arr.reduce((acc, g) => acc + (Number(fn(g)) || 0), 0);
+
+  const yes = data.filter(g => g.rsvp_status === 'yes');
+  const no = data.filter(g => g.rsvp_status === 'no');
+  const pending = data.filter(g => !g.rsvp_status);
+
+  const totalPasses = sum(data, g => g.passes);
+  const peopleComing = sum(yes, g => g.attending ?? g.passes);
+  const pendingPasses = sum(pending, g => g.passes);
+  const openedPending = pending.filter(g => g.opened_at).length;
+
   stats.innerHTML = `
-    <div class="flex flex-wrap gap-4 text-sm">
-      <span class="text-stone-300">Total: <strong class="text-white">${total}</strong></span>
-      <span class="text-green-400">✓ Confirmados: <strong>${confirmed}</strong></span>
-      <span class="text-red-400">✗ Rechazados: <strong>${declined}</strong></span>
-      <span class="text-amber-400">⏳ Pendientes: <strong>${pending}</strong></span>
+    <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2 text-sm">
+      <span class="text-stone-300">Invitaciones: <strong class="text-white">${data.length}</strong> <span class="text-stone-500">(${totalPasses} pases)</span></span>
+      <span class="text-green-400">✓ Asistirán: <strong>${peopleComing}</strong> personas <span class="text-stone-500">(${yes.length} inv.)</span></span>
+      <span class="text-red-400">✗ No asistirán: <strong>${no.length}</strong> inv.</span>
+      <span class="text-amber-400">⏳ Pendientes: <strong>${pending.length}</strong> inv. <span class="text-stone-500">(${pendingPasses} pases, ${openedPending} ya lo vieron)</span></span>
     </div>
   `;
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('es-DO', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 function renderGuests(data) {
@@ -104,33 +111,54 @@ function renderGuests(data) {
   if (!tbody) return;
 
   tbody.innerHTML = data.map(g => {
-    const basePath = window.location.pathname.replace(/\/admin.*$/, '') || '/';
-    const link = `${window.location.origin}${basePath}?token=${g.token}`;
     const statusBadge = g.rsvp_status === 'yes'
       ? '<span class="bg-green-600/20 text-green-400 px-2 py-0.5 rounded-full text-xs font-bold">✓ Sí</span>'
       : g.rsvp_status === 'no'
         ? '<span class="bg-red-600/20 text-red-400 px-2 py-0.5 rounded-full text-xs font-bold">✗ No</span>'
         : '<span class="bg-stone-600/20 text-stone-400 px-2 py-0.5 rounded-full text-xs">⏳ Pendiente</span>';
 
+    const attending = g.rsvp_status === 'yes' ? `${g.attending ?? g.passes}/${g.passes}` : '-';
+    const seen = g.opened_at
+      ? `<span class="text-green-400" title="Abrió su link: ${escHtml(formatDate(g.opened_at))}"><i class="fa-solid fa-eye"></i></span>`
+      : '<span class="text-stone-600" title="Aún no abre su link"><i class="fa-solid fa-eye-slash"></i></span>';
+    const cell = (v) => v ? escHtml(v) : '-';
+
     return `<tr class="border-b border-stone-800 hover:bg-stone-800/50 transition">
       <td class="py-3 px-3 text-sm font-medium">${escHtml(g.name)}</td>
-      <td class="py-3 px-3 text-sm text-center">${g.passes}</td>
-      <td class="py-3 px-3 text-sm text-center">${statusBadge}</td>
-      <td class="py-3 px-3 text-xs text-stone-400 max-w-[120px] truncate">${g.food_restrictions ? escHtml(g.food_restrictions) : '-'}</td>
-      <td class="py-3 px-3 text-xs text-stone-400 max-w-[120px] truncate">${g.song ? escHtml(g.song) : '-'}</td>
+      <td class="py-3 px-3 text-sm text-center">${Number(g.passes)}</td>
+      <td class="py-3 px-3 text-sm text-center" title="${g.responded_at ? 'Respondió: ' + escHtml(formatDate(g.responded_at)) : ''}">${statusBadge}</td>
+      <td class="py-3 px-3 text-sm text-center">${attending}</td>
+      <td class="py-3 px-3 text-sm text-center">${seen}</td>
+      <td class="py-3 px-3 text-xs text-stone-400 max-w-[120px] truncate hidden md:table-cell" title="${escHtml(g.food_restrictions || '')}">${cell(g.food_restrictions)}</td>
+      <td class="py-3 px-3 text-xs text-stone-400 max-w-[120px] truncate hidden md:table-cell" title="${escHtml(g.song || '')}">${cell(g.song)}</td>
+      <td class="py-3 px-3 text-xs text-stone-400 max-w-[180px] truncate hidden lg:table-cell" title="${escHtml(g.message || '')}">${cell(g.message)}</td>
       <td class="py-3 px-3 text-sm text-center whitespace-nowrap">
-        <button onclick="copyLink('${g.token}')" class="text-amber-400 hover:text-amber-300 px-1.5" title="Copiar link"><i class="fa-solid fa-link"></i></button>
-        <button onclick="sendWp('${g.token}','${escAttr(g.name)}')" class="text-green-400 hover:text-green-300 px-1.5" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
-        <button onclick="deleteGuest(${g.id})" class="text-red-400 hover:text-red-300 px-1.5" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>
+        <button type="button" data-action="copy" data-id="${Number(g.id)}" class="text-amber-400 hover:text-amber-300 px-1.5" title="Copiar link"><i class="fa-solid fa-link"></i></button>
+        <button type="button" data-action="whatsapp" data-id="${Number(g.id)}" class="text-green-400 hover:text-green-300 px-1.5" title="Enviar WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+        <button type="button" data-action="delete" data-id="${Number(g.id)}" class="text-red-400 hover:text-red-300 px-1.5" title="Eliminar"><i class="fa-solid fa-trash-can"></i></button>
       </td>
     </tr>`;
   }).join('');
 }
 
+// --- Acciones de la tabla (sin onclick en línea, para no inyectar nombres en JS) ---
+document.getElementById('guests-table-body')?.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const guest = guests.find(g => String(g.id) === btn.dataset.id);
+  if (!guest) return;
+  if (btn.dataset.action === 'copy') copyLink(guest);
+  else if (btn.dataset.action === 'whatsapp') sendWp(guest);
+  else if (btn.dataset.action === 'delete') deleteGuest(guest);
+});
+
+document.getElementById('export-csv-btn')?.addEventListener('click', exportCsv);
+
 // --- Add guest ---
 window.addGuest = async function () {
-  const name = document.getElementById('new-guest-name')?.value.trim();
-  const passes = document.getElementById('new-guest-passes')?.value || '1';
+  const nameInput = document.getElementById('new-guest-name');
+  const name = nameInput?.value.trim();
+  const passes = parseInt(document.getElementById('new-guest-passes')?.value || '1', 10);
   const errorEl = document.getElementById('add-guest-error');
 
   if (!name) {
@@ -139,10 +167,9 @@ window.addGuest = async function () {
   }
   errorEl?.classList.add('hidden');
 
-  const token = crypto.randomUUID();
   const { data, error } = await supabase
     .from('guests')
-    .insert({ name, passes: parseInt(passes), token })
+    .insert({ name, passes })
     .select();
 
   if (error) {
@@ -150,52 +177,79 @@ window.addGuest = async function () {
     return;
   }
 
-  document.getElementById('new-guest-name').value = '';
+  if (nameInput) nameInput.value = '';
   window.mostrarToast?.('¡Invitado añadido!');
-  loadGuests();
+  await loadGuests();
 
-  if (data?.[0]) {
-    const token = data[0].token;
-    const gName = data[0].name;
-    setTimeout(() => copyLink(token), 500);
+  const created = data?.[0];
+  if (created) {
+    setTimeout(() => copyLink(created), 300);
     setTimeout(() => {
-      if (confirm(`¿Enviar WhatsApp a ${gName} ahora?`)) sendWp(token, gName);
-    }, 1000);
+      if (confirm(`¿Enviar WhatsApp a ${created.name} ahora?`)) sendWp(created);
+    }, 800);
   }
 };
 
 // --- Delete guest ---
-window.deleteGuest = async function (id) {
-  if (!confirm('¿Eliminar este invitado definitivamente?')) return;
-  const { error } = await supabase.from('guests').delete().eq('id', id);
+async function deleteGuest(guest) {
+  if (!confirm(`¿Eliminar a "${guest.name}" definitivamente? Su link dejará de funcionar.`)) return;
+  const { error } = await supabase.from('guests').delete().eq('id', guest.id);
   if (error) { window.mostrarToast?.('Error al eliminar'); return; }
   window.mostrarToast?.('Invitado eliminado');
   loadGuests();
-};
+}
 
-// --- Copy link ---
-window.copyLink = function (token) {
-  const basePath = window.location.pathname.replace(/\/admin.*$/, '') || '/';
-  const link = `${window.location.origin}${basePath}?token=${token}`;
-  navigator.clipboard.writeText(link).then(() => {
+// --- Links ---
+function guestLink(guest) {
+  const basePath = window.location.pathname.replace(/\/admin.*$/, '/') || '/';
+  return `${window.location.origin}${basePath}?token=${encodeURIComponent(guest.token)}`;
+}
+
+function copyLink(guest) {
+  navigator.clipboard.writeText(guestLink(guest)).then(() => {
     window.mostrarToast?.('¡Link copiado al portapapeles!');
   });
-};
+}
 
-// --- Send WhatsApp ---
-window.sendWp = function (token, name) {
-  const basePath = window.location.pathname.replace(/\/admin.*$/, '') || '/';
-  const link = `${window.location.origin}${basePath}?token=${token}`;
-  const msg = `✨ ¡HOLA! ${name.toUpperCase()} ✨\n\nTenemos el gran honor de invitarlos a formar parte de nuestra tripulación en la aventura más importante de nuestras vidas: ¡NUESTRA BODA! 💍☠️🍃\n\n👇 Entren a su invitación personalizada aquí:\n${link}\n\n¡Los esperamos en la Gran Ruta de la Vida el 30 de enero de 2027! 🌸⚔️`;
+function sendWp(guest) {
+  const msg = `✨ ¡HOLA! ${guest.name.toUpperCase()} ✨\n\nTenemos el gran honor de invitarlos a formar parte de nuestra tripulación en la aventura más importante de nuestras vidas: ¡NUESTRA BODA! 💍☠️🍃\n\n👇 Entren a su invitación personalizada aquí:\n${guestLink(guest)}\n\n¡Los esperamos en la Gran Ruta de la Vida el 30 de enero de 2027! 🌸⚔️`;
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-};
+}
+
+// --- Export CSV ---
+function exportCsv() {
+  if (!guests.length) return;
+  const status = (s) => (s === 'yes' ? 'Sí' : s === 'no' ? 'No' : 'Pendiente');
+  const header = ['Nombre', 'Pases', 'Estado', 'Asisten', 'Alimentación', 'Canción', 'Mensaje', 'Abrió link', 'Respondió', 'Link'];
+  const rows = guests.map(g => [
+    g.name,
+    g.passes,
+    status(g.rsvp_status),
+    g.rsvp_status === 'yes' ? (g.attending ?? g.passes) : 0,
+    g.food_restrictions || '',
+    g.song || '',
+    g.message || '',
+    formatDate(g.opened_at),
+    formatDate(g.responded_at),
+    guestLink(g),
+  ]);
+  const csvCell = (v) => {
+    let s = String(v ?? '');
+    if (/^[=+\-@]/.test(s)) s = `'${s}`; // evita fórmulas al abrir en Excel
+    return `"${s.replace(/"/g, '""')}"`;
+  };
+  const csv = [header, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `invitados-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
 // --- Helpers ---
 function escHtml(str) {
   const d = document.createElement('div');
-  d.textContent = str || '';
-  return d.innerHTML;
-}
-function escAttr(str) {
-  return (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML.replace(/"/g, '&quot;');
 }

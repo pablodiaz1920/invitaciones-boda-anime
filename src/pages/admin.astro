@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Panel de Administración - Debora & Pablo">
+<Layout title="Panel de Administración - Debora & Pablo" noindex>
   <main class="min-h-screen bg-stone-950 text-white py-8 px-4 md:px-6">
     <div class="max-w-5xl mx-auto">
 
@@ -79,11 +79,14 @@ import Layout from '../layouts/Layout.astro';
 
         <!-- Guests Table -->
         <div class="bg-stone-900 rounded-2xl border border-stone-700 overflow-hidden">
-          <div class="p-4 md:p-5 border-b border-stone-700">
+          <div class="p-4 md:p-5 border-b border-stone-700 flex items-center justify-between gap-3">
             <h3 class="font-title text-sm text-amber-400 flex items-center space-x-2">
               <i class="fa-solid fa-users"></i>
               <span>Lista de Invitados</span>
             </h3>
+            <button id="export-csv-btn" type="button" class="text-xs text-stone-300 hover:text-amber-400 border border-stone-600 hover:border-amber-500 rounded-lg px-3 py-1.5 transition">
+              <i class="fa-solid fa-file-csv mr-1"></i>Exportar CSV
+            </button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left">
@@ -92,13 +95,16 @@ import Layout from '../layouts/Layout.astro';
                   <th class="py-3 px-3 font-semibold">Nombre</th>
                   <th class="py-3 px-3 font-semibold text-center">Pases</th>
                   <th class="py-3 px-3 font-semibold text-center">Estado</th>
+                  <th class="py-3 px-3 font-semibold text-center">Asisten</th>
+                  <th class="py-3 px-3 font-semibold text-center" title="¿Abrió su link?">Visto</th>
                   <th class="py-3 px-3 font-semibold hidden md:table-cell">Alimentación</th>
                   <th class="py-3 px-3 font-semibold hidden md:table-cell">Canción</th>
+                  <th class="py-3 px-3 font-semibold hidden lg:table-cell">Mensaje</th>
                   <th class="py-3 px-3 font-semibold text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody id="guests-table-body">
-                <tr><td colspan="6" class="text-center py-8 text-stone-400">Iniciando sesión...</td></tr>
+                <tr><td colspan="9" class="text-center py-8 text-stone-400">Iniciando sesión...</td></tr>
               </tbody>
             </table>
           </div>

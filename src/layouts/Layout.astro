@@ -3,9 +3,10 @@ import '../styles/global.css';
 
 export interface Props {
   title?: string;
+  noindex?: boolean;
 }
 
-const { title = "¡La Gran Alianza! Boda de Debora & Pablo" } = Astro.props;
+const { title = "¡La Gran Alianza! Boda de Debora & Pablo", noindex = false } = Astro.props;
 const site = Astro.site ?? new URL('https://pablodiaz1920.github.io');
 const currentUrl = new URL(Astro.url.pathname, site);
 const ogImage = new URL('/invitaciones-boda-anime/Invitaciones2.jpeg', site).href;
@@ -21,6 +22,7 @@ const description = "Débora & Pablo se casan el 30 de Enero de 2027. Únete a n
     <link rel="icon" href="/invitaciones-boda-anime/favicon.jpeg" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="keywords" content="boda, anime, shinobi, pirata, one piece, naruto, boda temática, débora, pablo, república dominicana, santo domingo" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
