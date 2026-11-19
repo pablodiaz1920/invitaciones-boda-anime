@@ -247,6 +247,212 @@ function exportCsv() {
   URL.revokeObjectURL(a.href);
 }
 
+// --- Importar CSV (Excel / Google Sheets) ---
+const MAX_PASSES = 20; // igual que la restricción guests_passes_check de la base de datos
+let importRows = [];
+
+// "  José   PÉREZ " → "jose perez", para detectar duplicados aunque cambien tildes o mayúsculas
+function normalizeName(str) {
+  return String(str || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+// Lector de CSV con comillas ("Pérez, Ana") y separador , ; o tabulador
+function parseCsv(text) {
+  const firstLine = text.split(/\r?\n/, 1)[0];
+  const count = (ch) => firstLine.split(ch).length - 1;
+  const delimiter = [';', '\t', ','].reduce((best, ch) => (count(ch) > count(best) ? ch : best), ',');
+
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') inQuotes = false;
+      else field += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === delimiter) { row.push(field); field = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(field); rows.push(row); row = []; field = '';
+    } else field += c;
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+const NAME_HEADERS = ['nombre', 'name', 'invitado', 'invitados', 'nombre del invitado', 'nombres', 'familia'];
+const PASSES_HEADERS = ['pases', 'passes', 'pase', 'cantidad', 'personas', 'numero de pases', 'no. pases', 'n pases'];
+
+function analyzeCsv(text) {
+  const rows = parseCsv(text).map(r => r.map(c => c.trim()));
+  const nonEmpty = rows.filter(r => r.some(c => c !== ''));
+  if (!nonEmpty.length) throw new Error('El archivo está vacío.');
+
+  const header = nonEmpty[0].map(normalizeName);
+  let nameCol = header.findIndex(h => NAME_HEADERS.includes(h));
+  let passesCol = header.findIndex(h => PASSES_HEADERS.includes(h));
+  let firstDataRow = 1;
+
+  if (nameCol === -1) {
+    // Sin encabezados reconocibles: si la 2ª columna es un número, asumimos "Nombre, Pases" sin cabecera
+    if (nonEmpty[0].length >= 2 && /^\d+$/.test(nonEmpty[0][1])) {
+      nameCol = 0; passesCol = 1; firstDataRow = 0;
+    } else {
+      throw new Error('No encontré la columna "Nombre". La primera fila debe tener los encabezados Nombre y Pases.');
+    }
+  }
+
+  const existing = new Map(guests.map(g => [normalizeName(g.name), g]));
+  const seenInFile = new Set();
+
+  return rows.map((r, i) => ({ r, line: i + 1 }))
+    .filter(({ r }) => r.some(c => c !== ''))
+    .slice(firstDataRow)
+    .map(({ r, line }) => {
+      const name = (r[nameCol] || '').replace(/\s+/g, ' ').trim();
+      const rawPasses = passesCol === -1 ? '' : (r[passesCol] || '').trim();
+      const row = { line, name, passes: null, status: 'new', note: '' };
+
+      if (!name) return { ...row, status: 'error', note: 'Falta el nombre' };
+      if (name.length > 200) return { ...row, status: 'error', note: 'Nombre demasiado largo' };
+
+      if (rawPasses === '') {
+        row.passes = 1;
+        row.note = 'Sin pases: se usará 1';
+      } else if (!/^\d+$/.test(rawPasses) || Number(rawPasses) < 1 || Number(rawPasses) > MAX_PASSES) {
+        return { ...row, status: 'error', note: `Pases inválidos ("${rawPasses}"): usa un número del 1 al ${MAX_PASSES}` };
+      } else {
+        row.passes = Number(rawPasses);
+      }
+
+      const key = normalizeName(name);
+      const already = existing.get(key);
+      if (already) {
+        const diff = Number(already.passes) !== row.passes ? ` (en la web tiene ${already.passes} ${Number(already.passes) === 1 ? 'pase' : 'pases'})` : '';
+        return { ...row, status: 'exists', note: `Ya existe, se salta${diff}` };
+      }
+      if (seenInFile.has(key)) return { ...row, status: 'dup', note: 'Repetido en el archivo, se salta' };
+      seenInFile.add(key);
+      return row;
+    });
+}
+
+const IMPORT_STATUS = {
+  new: { label: 'Nuevo', cls: 'text-green-400' },
+  exists: { label: 'Ya existe', cls: 'text-stone-400' },
+  dup: { label: 'Repetido', cls: 'text-stone-400' },
+  error: { label: 'Error', cls: 'text-red-400' },
+};
+
+function renderImportPreview() {
+  const toImport = importRows.filter(r => r.status === 'new');
+  const n = (s) => importRows.filter(r => r.status === s).length;
+  const people = toImport.reduce((a, r) => a + r.passes, 0);
+
+  document.getElementById('import-summary').innerHTML = `
+    <span class="text-green-400">✓ Nuevos: <strong>${toImport.length}</strong> <span class="text-stone-500">(${people} pases)</span></span>
+    <span class="text-stone-400">Ya existen: <strong>${n('exists')}</strong></span>
+    ${n('dup') ? `<span class="text-stone-400">Repetidos: <strong>${n('dup')}</strong></span>` : ''}
+    ${n('error') ? `<span class="text-red-400">✗ Con errores: <strong>${n('error')}</strong> <span class="text-stone-500">(no se importan; corrígelos y vuelve a subir el archivo)</span></span>` : ''}
+  `;
+
+  document.getElementById('import-preview-body').innerHTML = importRows.map(r => {
+    const st = IMPORT_STATUS[r.status];
+    return `<tr class="border-b border-stone-800 ${r.status === 'new' ? '' : 'opacity-70'}">
+      <td class="py-2 px-3 text-xs text-stone-500">${r.line}</td>
+      <td class="py-2 px-3">${r.name ? escHtml(r.name) : '<span class="text-stone-500">—</span>'}</td>
+      <td class="py-2 px-3 text-center">${r.passes ?? '-'}</td>
+      <td class="py-2 px-3 text-xs"><span class="${st.cls} font-semibold">${st.label}</span>${r.note ? ` <span class="text-stone-400">· ${escHtml(r.note)}</span>` : ''}</td>
+    </tr>`;
+  }).join('');
+
+  const btn = document.getElementById('import-confirm-btn');
+  btn.disabled = toImport.length === 0;
+  btn.innerHTML = toImport.length
+    ? `<i class="fa-solid fa-check mr-1"></i>Importar ${toImport.length} ${toImport.length === 1 ? 'invitado' : 'invitados'}`
+    : 'Nada nuevo que importar';
+
+  document.getElementById('import-preview').classList.remove('hidden');
+}
+
+async function readCsvFile(file) {
+  const buffer = await file.arrayBuffer();
+  let text = new TextDecoder('utf-8').decode(buffer);
+  // Excel en Windows a veces guarda el CSV en Windows-1252: si aparecen "�", se vuelve a leer así
+  if (text.includes('�')) text = new TextDecoder('windows-1252').decode(buffer);
+  return text.replace(/^﻿/, '');
+}
+
+function resetImport() {
+  importRows = [];
+  document.getElementById('import-preview')?.classList.add('hidden');
+  document.getElementById('import-error')?.classList.add('hidden');
+  const input = document.getElementById('import-csv-input');
+  if (input) input.value = '';
+}
+
+document.getElementById('import-csv-input')?.addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  const errorEl = document.getElementById('import-error');
+  errorEl.classList.add('hidden');
+  document.getElementById('import-preview').classList.add('hidden');
+  if (!file) return;
+
+  try {
+    if (file.size > 1_000_000) throw new Error('El archivo es demasiado grande (máximo 1 MB).');
+    if (/\.xlsx?$/i.test(file.name)) throw new Error('Ese es un archivo de Excel (.xlsx). Guárdalo primero como "CSV UTF-8" y súbelo de nuevo.');
+    await loadGuests(); // lista al día para detectar duplicados
+    importRows = analyzeCsv(await readCsvFile(file));
+    if (!importRows.length) throw new Error('No encontré invitados debajo de los encabezados.');
+    renderImportPreview();
+  } catch (err) {
+    errorEl.textContent = err.message || 'No se pudo leer el archivo.';
+    errorEl.classList.remove('hidden');
+    e.target.value = '';
+  }
+});
+
+document.getElementById('import-cancel-btn')?.addEventListener('click', resetImport);
+
+document.getElementById('import-confirm-btn')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  const toImport = importRows.filter(r => r.status === 'new').map(r => ({ name: r.name, passes: r.passes }));
+  if (!toImport.length) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Importando...';
+  let imported = 0;
+  try {
+    for (let i = 0; i < toImport.length; i += 100) {
+      const chunk = toImport.slice(i, i + 100);
+      const { error } = await supabase.from('guests').insert(chunk);
+      if (error) throw error;
+      imported += chunk.length;
+    }
+    window.mostrarToast?.(`¡${imported} ${imported === 1 ? 'invitado importado' : 'invitados importados'}!`);
+    resetImport();
+  } catch (err) {
+    resetImport();
+    const errorEl = document.getElementById('import-error');
+    errorEl.textContent = `Error al importar${imported ? ` (se guardaron ${imported} antes del error)` : ''}: ${err.message}. Vuelve a subir el archivo: los ya guardados se saltarán.`;
+    errorEl.classList.remove('hidden');
+  }
+  await loadGuests();
+});
+
+document.getElementById('import-template-btn')?.addEventListener('click', () => {
+  const csv = 'Nombre,Pases\r\nFamilia Pérez,4\r\nAna Gómez,2\r\nLuis Martínez,1\r\n';
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plantilla-invitados.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
 // --- Helpers ---
 function escHtml(str) {
   const d = document.createElement('div');
