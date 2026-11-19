@@ -1,38 +1,40 @@
-<div id="mobile-menu" class="fixed inset-0 bg-wedding-dark/95 z-50 translate-x-full transition-transform duration-300 md:hidden flex flex-col justify-center items-center space-y-8 text-xl font-title text-white">
-  <button id="close-menu-btn" class="absolute top-6 right-6 text-3xl text-white hover:text-pirate-gold transition">
-    <i class="fa-solid fa-xmark"></i>
-  </button>
-  <a href="#inicio" class="hover:text-pirate-gold transition text-lg">Inicio</a>
-  <a href="#historia" class="hover:text-pirate-gold transition text-lg">Nuestra Alianza</a>
-  <a href="#galeria" class="hover:text-pirate-gold transition text-lg">Galería</a>
-  <a href="#detalles" class="hover:text-pirate-gold transition text-lg">Cuándo & Dónde</a>
-  <a href="#itinerario" class="hover:text-pirate-gold transition text-lg">Itinerario</a>
-  <a href="#regalos" class="hover:text-pirate-gold transition text-lg">Regalos</a>
-  <a href="#rsvp" class="bg-linear-to-r from-pirate-red to-ninja-red px-6 py-2.5 rounded-full font-bold uppercase tracking-wider text-sm shadow-md">Confirmar</a>
-</div>
+---
+// "sections": secciones que activan cada enlace al hacer scroll
+const links = [
+  { href: '#historia', label: 'Historia', sections: 'historia' },
+  { href: '#galeria', label: 'Galería', sections: 'galeria' },
+  { href: '#detalles', label: 'El Día', sections: 'detalles itinerario' },
+  { href: '#regalos', label: 'Regalos', sections: 'regalos' },
+];
+---
 
-<header class="sticky top-0 z-40 backdrop-blur-md bg-white/80 border-b border-rose-100 py-3 px-4 md:px-6 shadow-sm">
-  <div class="max-w-6xl mx-auto flex justify-between items-center">
-    <a href="#" class="font-title text-wedding-rose text-lg md:text-2xl font-bold tracking-wider">D & P</a>
+<header id="site-header" class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-rose-100 shadow-sm">
+  <div class="max-w-6xl mx-auto h-14 md:h-16 px-4 md:px-6 flex items-center justify-between gap-4">
+    <a href="#inicio" class="font-title text-wedding-rose text-lg md:text-2xl font-bold tracking-wider whitespace-nowrap" aria-label="Ir al inicio">D & P</a>
 
-    <nav class="hidden md:flex space-x-6 text-sm font-semibold tracking-wider uppercase">
-      <a href="#inicio" class="hover:text-wedding-rose transition">Inicio</a>
-      <a href="#historia" class="hover:text-wedding-rose transition">Nuestra Alianza</a>
-      <a href="#galeria" class="hover:text-wedding-rose transition">Galería</a>
-      <a href="#detalles" class="hover:text-wedding-rose transition">Cuándo y Dónde</a>
-      <a href="#itinerario" class="hover:text-wedding-rose transition">Itinerario</a>
-      <a href="#regalos" class="hover:text-wedding-rose transition">Regalos</a>
-      <a href="#rsvp" class="hover:text-wedding-rose transition">Confirmar</a>
+    <nav aria-label="Secciones" class="hidden md:flex items-center gap-6 lg:gap-10 text-xs lg:text-sm font-semibold uppercase tracking-wider whitespace-nowrap">
+      {links.map((l) => (
+        <a href={l.href} data-sections={l.sections} class="nav-link py-2 border-b-2 border-transparent hover:text-wedding-rose transition">{l.label}</a>
+      ))}
     </nav>
 
-    <div class="flex items-center space-x-2">
-      <a href="#rsvp" class="hidden sm:inline-block bg-linear-to-r from-pirate-red to-ninja-red text-white hover:scale-105 active:scale-95 transition px-4 py-2 rounded-full text-xs md:text-sm uppercase tracking-wider font-bold shadow-md">
-        Confirmar Asistencia
+    <div class="flex items-center gap-1">
+      <a href="#rsvp" data-sections="rsvp" class="nav-cta bg-linear-to-r from-pirate-red to-ninja-red text-white hover:brightness-110 active:scale-95 transition px-4 py-2 rounded-full text-xs md:text-sm uppercase tracking-wider font-bold shadow-md whitespace-nowrap">
+        Confirmar
       </a>
-
-      <button id="open-menu-btn" class="md:hidden text-wedding-rose text-2xl p-2 focus:outline-none" aria-label="Abrir menú">
-        <i class="fa-solid fa-bars"></i>
+      <button id="menu-toggle" type="button" class="md:hidden text-wedding-rose text-xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-rose-50 transition" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
     </div>
   </div>
+
+  <nav id="mobile-menu" aria-label="Secciones" class="md:hidden hidden border-t border-rose-100 bg-white">
+    <ul class="max-w-6xl mx-auto px-4 py-3 grid grid-cols-2 gap-2">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} data-sections={l.sections} class="nav-link block text-center py-3 rounded-xl bg-rose-50/60 text-sm font-semibold uppercase tracking-wider text-wedding-dark hover:bg-rose-100 transition">{l.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
 </header>

@@ -1,5 +1,8 @@
 const canvas = document.getElementById('sakura-canvas');
-if (!canvas) throw new Error('Canvas element not found');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (canvas && !reduceMotion) startSakura(canvas);
+
+function startSakura(canvas) {
 
 const ctx = canvas.getContext('2d');
 let width = canvas.width = window.innerWidth;
@@ -10,7 +13,7 @@ window.addEventListener('resize', () => {
   height = canvas.height = window.innerHeight;
 });
 
-const petalCount = 30;
+const petalCount = window.innerWidth < 768 ? 16 : 28;
 const petals = [];
 
 class Petal {
@@ -69,3 +72,4 @@ function animate() {
 
 init();
 animate();
+}

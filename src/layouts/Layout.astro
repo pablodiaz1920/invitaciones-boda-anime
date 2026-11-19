@@ -45,22 +45,18 @@ const description = "Débora & Pablo se casan el 30 de Enero de 2027. Únete a n
 
   </head>
   <body class="bg-wedding-bg text-wedding-dark min-h-screen font-sans overflow-x-hidden">
-    <canvas id="sakura-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-50"></canvas>
+    <!-- Pétalos por detrás del contenido: nunca tapan texto ni imágenes -->
+    <canvas id="sakura-canvas" class="fixed inset-0 w-full h-full pointer-events-none -z-10" aria-hidden="true"></canvas>
 
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2">
-      <button id="music-btn" class="w-14 h-14 bg-white text-rose-600 rounded-full flex items-center justify-center shadow-2xl border-2 border-rose-500 hover:scale-110 active:scale-95 transition-transform duration-200">
-        <i id="music-icon" class="fas fa-music text-xl"></i>
-      </button>
-      <audio id="bg-music" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
-      </audio>
-    </div>
-
-    <div id="toast" class="fixed top-24 right-6 bg-wedding-rose text-white text-xxs md:text-xs uppercase font-bold tracking-wider px-5 py-2.5 md:px-6 md:py-3 rounded-xl shadow-2xl border border-rose-700 translate-x-80 opacity-0 transition-all duration-300 z-50">
+    <div id="toast" role="status" aria-live="polite" class="fixed top-20 left-1/2 -translate-x-1/2 -translate-y-4 max-w-[calc(100vw-2rem)] text-center bg-wedding-rose text-white text-xs uppercase font-bold tracking-wider px-5 py-2.5 md:px-6 md:py-3 rounded-xl shadow-2xl border border-rose-700 opacity-0 pointer-events-none transition-all duration-300 z-50">
       ¡Copiado al portapapeles!
     </div>
 
     <slot />
+
+    <button id="back-to-top" type="button" aria-label="Volver arriba" class="back-to-top fixed right-4 md:right-6 z-30 w-11 h-11 md:w-12 md:h-12 rounded-full bg-wedding-rose text-white shadow-lg border-2 border-white flex items-center justify-center hover:brightness-110 active:scale-95 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none">
+      <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+    </button>
 
     <script>
       import '../scripts/sakura.js';

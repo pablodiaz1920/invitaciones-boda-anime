@@ -34,8 +34,9 @@ let guestData = null;
 
 // --- Countdown ---
 (function initCountdown() {
-  // Hora de República Dominicana (UTC-4), igual para todos sin importar dónde abran la página
-  const weddingDate = new Date("2027-01-30T17:00:00-04:00").getTime();
+  // Inicio de la ceremonia, 3:00 PM hora de República Dominicana (UTC-4),
+  // igual para todos sin importar dónde abran la página
+  const weddingDate = new Date("2027-01-30T15:00:00-04:00").getTime();
   const el = (id, v) => { const e = document.getElementById(id); if (e) e.innerHTML = v < 10 ? "0" + v : v; };
   const countdown = setInterval(() => {
     const now = new Date().getTime();
@@ -48,23 +49,11 @@ let guestData = null;
   }, 1000);
 })();
 
-// --- Music Player ---
-(function initMusic() {
-  const btn = document.getElementById('music-btn');
-  const icon = document.getElementById('music-icon');
-  const audio = document.getElementById('bg-music');
-  if (!btn || !icon || !audio) return;
-  let playing = false;
-  btn.addEventListener('click', () => {
-    if (playing) { audio.pause(); icon.className = 'fas fa-music text-xl'; btn.classList.remove('animate-spin'); }
-    else { audio.play(); icon.className = 'fas fa-pause text-xl'; btn.classList.add('animate-spin'); }
-    playing = !playing;
-  });
-})();
+// --- Scroll suave, sección activa en el menú y botón "volver arriba" ---
+(function initNavigation() {
+  const header = document.getElementById('site-header');
+  const headerOffset = () => (header?.offsetHeight || 64) + 8;
 
-// --- Smooth Scroll & Active Section ---
-(function initSmoothScroll() {
-  const HEADER_OFFSET = 70;
   document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', e => {
       const href = link.getAttribute('href');
@@ -72,51 +61,74 @@ let guestData = null;
       const target = document.querySelector(href);
       if (!target) return;
       e.preventDefault();
-      const top = target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+      const top = href === '#inicio' ? 0 : target.getBoundingClientRect().top + window.scrollY - headerOffset();
       window.scrollTo({ top, behavior: 'smooth' });
     });
   });
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('nav a[href^="#"], #mobile-menu a[href^="#"]');
-  function updateActiveSection() {
+
+  const sections = [...document.querySelectorAll('section[id]')];
+  const navLinks = [...document.querySelectorAll('.nav-link[data-sections]')];
+  const backToTop = document.getElementById('back-to-top');
+
+  function update() {
+    const pos = window.scrollY + headerOffset() + 80;
     let current = '';
-    const scrollPos = window.scrollY + HEADER_OFFSET + 100;
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop;
-      const sectionHeight = section.offsetHeight;
-      if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) current = section.getAttribute('id');
-    });
+    for (const s of sections) {
+      if (pos >= s.offsetTop && pos < s.offsetTop + s.offsetHeight) current = s.id;
+    }
     navLinks.forEach(link => {
-      link.classList.remove('text-wedding-rose', 'font-bold');
-      if (link.getAttribute('href') === `#${current}`) link.classList.add('text-wedding-rose', 'font-bold');
+      const active = link.dataset.sections.split(' ').includes(current);
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
     });
+    backToTop?.classList.toggle('is-visible', window.scrollY > window.innerHeight * 0.8);
   }
+
   let ticking = false;
   window.addEventListener('scroll', () => {
-    if (!ticking) { requestAnimationFrame(() => { updateActiveSection(); ticking = false; }); ticking = true; }
+    if (!ticking) { requestAnimationFrame(() => { update(); ticking = false; }); ticking = true; }
+  }, { passive: true });
+  update();
+
+  backToTop?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector('#site-header a')?.focus({ preventScroll: true });
   });
-  updateActiveSection();
 })();
 
-// --- Mobile Menu ---
+// --- Menú móvil (desplegable bajo la cabecera) ---
 (function initMenu() {
   const menu = document.getElementById('mobile-menu');
-  const openBtn = document.getElementById('open-menu-btn');
-  const closeBtn = document.getElementById('close-menu-btn');
-  if (!menu || !openBtn) return;
-  const toggle = () => menu.classList.toggle('translate-x-full');
-  openBtn.addEventListener('click', toggle);
-  if (closeBtn) closeBtn.addEventListener('click', toggle);
-  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', toggle));
+  const btn = document.getElementById('menu-toggle');
+  if (!menu || !btn) return;
+  const icon = btn.querySelector('i');
+
+  const setOpen = (open) => {
+    menu.classList.toggle('hidden', !open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    if (icon) icon.className = open ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+  };
+
+  btn.addEventListener('click', () => setOpen(menu.classList.contains('hidden')));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+  document.addEventListener('click', e => {
+    if (!menu.classList.contains('hidden') && !e.target.closest('#site-header')) setOpen(false);
+  });
+  window.matchMedia('(min-width: 768px)').addEventListener('change', e => { if (e.matches) setOpen(false); });
 })();
 
 // --- Toast ---
+let toastTimer;
 function mostrarToast(msg) {
   const t = document.getElementById('toast');
   if (!t) return;
-  t.innerText = msg;
-  t.classList.remove('translate-x-80', 'opacity-0');
-  setTimeout(() => t.classList.add('translate-x-80', 'opacity-0'), 3000);
+  t.textContent = msg;
+  t.classList.remove('opacity-0', '-translate-y-4');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('opacity-0', '-translate-y-4'), 3000);
 }
 
 // --- Copy Account ---

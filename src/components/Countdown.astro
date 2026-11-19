@@ -1,9 +1,20 @@
 ---
+import { Image } from 'astro:assets';
 import countdownBg from '../assets/IMG_0481.webp';
 ---
 
 <section class="anim-fade-in-up relative overflow-hidden text-white py-10 px-4 md:px-6 shadow-xl">
-  <img src={countdownBg.src} alt="" class="absolute inset-0 w-full h-full object-cover" />
+  <Image
+    src={countdownBg}
+    alt=""
+    width={1600}
+    widths={[640, 1024, 1600]}
+    sizes="100vw"
+    quality={50}
+    class="absolute inset-0 w-full h-full object-cover"
+    loading="lazy"
+    decoding="async"
+  />
   <div class="absolute inset-0 bg-linear-to-r from-red-950/90 via-rose-950/80 to-stone-950/90"></div>
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent"></div>
   <div class="max-w-4xl mx-auto text-center relative z-10">
@@ -12,19 +23,19 @@ import countdownBg from '../assets/IMG_0481.webp';
     <div class="grid grid-cols-4 gap-2 md:gap-6 max-w-2xl mx-auto">
       <div class="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-2.5 md:p-6 border border-white/10">
         <span id="days" class="block text-xl sm:text-3xl md:text-5xl font-title font-bold text-pirate-gold">00</span>
-        <span class="text-[9px] md:text-xs uppercase tracking-widest text-stone-300 font-semibold mt-1 block">Días</span>
+        <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-300 font-semibold mt-1 block">Días</span>
       </div>
       <div class="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-2.5 md:p-6 border border-white/10">
         <span id="hours" class="block text-xl sm:text-3xl md:text-5xl font-title font-bold text-pirate-gold">00</span>
-        <span class="text-[9px] md:text-xs uppercase tracking-widest text-stone-300 font-semibold mt-1 block">Horas</span>
+        <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-300 font-semibold mt-1 block">Horas</span>
       </div>
       <div class="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-2.5 md:p-6 border border-white/10">
         <span id="minutes" class="block text-xl sm:text-3xl md:text-5xl font-title font-bold text-pirate-gold">00</span>
-        <span class="text-[9px] md:text-xs uppercase tracking-widest text-stone-300 font-semibold mt-1 block">Mins</span>
+        <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-300 font-semibold mt-1 block">Mins</span>
       </div>
       <div class="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-2.5 md:p-6 border border-white/10">
         <span id="seconds" class="block text-xl sm:text-3xl md:text-5xl font-title font-bold text-pirate-gold">00</span>
-        <span class="text-[9px] md:text-xs uppercase tracking-widest text-stone-300 font-semibold mt-1 block">Segs</span>
+        <span class="text-[10px] md:text-xs uppercase tracking-wider text-stone-300 font-semibold mt-1 block">Segs</span>
       </div>
     </div>
 
