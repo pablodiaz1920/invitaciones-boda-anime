@@ -34,9 +34,9 @@ let guestData = null;
 
 // --- Countdown ---
 (function initCountdown() {
-  // Inicio de la ceremonia, 3:00 PM hora de República Dominicana (UTC-4),
+  // Inicio de la ceremonia, 4:00 PM hora de República Dominicana (UTC-4),
   // igual para todos sin importar dónde abran la página
-  const weddingDate = new Date("2027-01-30T15:00:00-04:00").getTime();
+  const weddingDate = new Date("2027-01-30T16:00:00-04:00").getTime();
   const el = (id, v) => { const e = document.getElementById(id); if (e) e.innerHTML = v < 10 ? "0" + v : v; };
   const countdown = setInterval(() => {
     const now = new Date().getTime();
