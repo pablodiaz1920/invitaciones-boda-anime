@@ -9,13 +9,13 @@ import img0873 from '../assets/IMG_0873.webp';
 import img1031 from '../assets/IMG_1031.webp';
 
 const photos = [
-  { src: img0356, caption: 'El Encuentro en el Mar de Konoha', rotate: 'rotate-[-2deg]' },
-  { src: img0539, caption: 'La Gran Ruta Comienza', rotate: 'rotate-[-1deg]' },
-  { src: img0591, caption: 'El Tesoro del Destino', rotate: 'rotate-[2deg]' },
-  { src: img0623, caption: 'Promesa de Amor Eterno', rotate: 'rotate-[-1.5deg]' },
-  { src: img0655, caption: 'Aventuras en la Isla', rotate: 'rotate-[1deg]' },
-  { src: img0873, caption: 'El Camino Ninja Juntos', rotate: 'rotate-[-2.5deg]' },
-  { src: img1031, caption: 'Nuestro One Piece', rotate: 'rotate-[2.5deg]' },
+  { src: img0356, caption: 'Donde todo comenzó', rotate: 'rotate-[-2deg]' },
+  { src: img0539, caption: 'El comienzo del camino', rotate: 'rotate-[-1deg]' },
+  { src: img0591, caption: 'Lo que el destino guardó', rotate: 'rotate-[2deg]' },
+  { src: img0623, caption: 'Promesa de amor eterno', rotate: 'rotate-[-1.5deg]' },
+  { src: img0655, caption: 'Entre flores y promesas', rotate: 'rotate-[1deg]' },
+  { src: img0873, caption: 'Caminando juntos', rotate: 'rotate-[-2.5deg]' },
+  { src: img1031, caption: 'Para siempre, juntos', rotate: 'rotate-[2.5deg]' },
 ];
 
 // Versiones grandes solo para la vista a pantalla completa (se cargan al abrirla)
@@ -29,9 +29,9 @@ const fullSize = await Promise.all(
 
 <section id="galeria" class="py-12 md:py-20 px-4 md:px-6 max-w-6xl mx-auto">
   <div class="text-center max-w-2xl mx-auto mb-10 md:mb-16 space-y-3">
-    <h2 class="anim-fade-in-up font-title text-2xl sm:text-3xl md:text-4xl text-wedding-rose">Bitácora de Fotos de la Alianza</h2>
+    <h2 class="anim-fade-in-up font-title text-2xl sm:text-3xl md:text-4xl text-wedding-rose">Nuestros Recuerdos</h2>
     <div class="h-1 w-24 bg-wedding-gold mx-auto rounded-full"></div>
-    <p class="anim-fade-in-up text-stone-600 font-serif-elegant text-sm md:text-base italic">Momentos que escribimos juntos en nuestro propio pergamino de aventuras.</p>
+    <p class="anim-fade-in-up text-stone-600 font-serif-elegant text-sm md:text-base italic">Instantes que guardamos como postales de un viaje que apenas comienza.</p>
     <p class="text-xs text-stone-500"><i class="fa-solid fa-expand mr-1" aria-hidden="true"></i>Toca cualquier foto para verla en pantalla completa</p>
   </div>
 
@@ -41,8 +41,8 @@ const fullSize = await Promise.all(
       {[0, 1].map((copy) => (
         <div class="flex gap-3 pr-3" aria-hidden={copy === 1 ? 'true' : undefined}>
           {photos.map((photo, i) => (
-            <button type="button" class="gallery-open shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-pirate-gold cursor-zoom-in" data-index={i} tabindex={copy === 1 ? -1 : undefined} aria-label={`Ver "${photo.caption}" en pantalla completa`}>
-              <Image src={photo.src} alt="" height={224} quality={70} class="h-20 md:h-28 w-auto rounded-lg object-cover border-2 border-pirate-gold/40 shadow-lg" loading="lazy" decoding="async" />
+            <button type="button" class="gallery-open shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-gold-light cursor-zoom-in" data-index={i} tabindex={copy === 1 ? -1 : undefined} aria-label={`Ver "${photo.caption}" en pantalla completa`}>
+              <Image src={photo.src} alt="" height={224} quality={70} class="h-20 md:h-28 w-auto rounded-lg object-cover border-2 border-gold-light/40 shadow-lg" loading="lazy" decoding="async" />
             </button>
           ))}
         </div>
@@ -55,7 +55,7 @@ const fullSize = await Promise.all(
   <!-- Galería estilo polaroid -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6 md:gap-8">
     {photos.map((photo, i) => (
-      <figure class={`anim-fade-in-up ${photo.rotate} hover:rotate-0 transition-transform duration-500 bg-white p-2 md:p-3 pb-3 md:pb-4 rounded-xl shadow-lg border border-rose-100`}>
+      <figure class={`anim-fade-in-up ${photo.rotate} hover:rotate-0 transition-transform duration-500 bg-white p-2 md:p-3 pb-3 md:pb-4 rounded-xl shadow-lg border border-amber-100`}>
         <button type="button" class="gallery-open group relative block w-full overflow-hidden rounded-lg aspect-[3/4] cursor-zoom-in focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-wedding-rose" data-index={i} aria-label={`Ver "${photo.caption}" en pantalla completa`}>
           <Image
             src={photo.src}
@@ -110,7 +110,7 @@ const fullSize = await Promise.all(
       <button type="button" class="lightbox-prev md:hidden w-11 h-11 shrink-0 rounded-full bg-white/10 active:bg-white/20 text-lg" aria-label="Foto anterior">
         <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
       </button>
-      <p id="lightbox-caption" class="flex-1 text-center font-title text-sm md:text-base text-pirate-gold"></p>
+      <p id="lightbox-caption" class="flex-1 text-center font-title text-sm md:text-base text-gold-light"></p>
       <button type="button" class="lightbox-next md:hidden w-11 h-11 shrink-0 rounded-full bg-white/10 active:bg-white/20 text-lg" aria-label="Foto siguiente">
         <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
       </button>
