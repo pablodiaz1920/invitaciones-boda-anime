@@ -212,7 +212,7 @@ function copyLink(guest) {
 }
 
 function sendWp(guest) {
-  const msg = `✨ ¡HOLA! ${guest.name.toUpperCase()} ✨\n\nTenemos el gran honor de invitarlos a formar parte de nuestra tripulación en la aventura más importante de nuestras vidas: ¡NUESTRA BODA! 💍☠️🍃\n\n👇 Entren a su invitación personalizada aquí:\n${guestLink(guest)}\n\n¡Los esperamos en la Gran Ruta de la Vida el 30 de enero de 2027! 🌸⚔️`;
+  const msg = `🌸 Hola, ${guest.name} 🌸\n\nCon mucha ilusión queremos invitarlos a acompañarnos en el comienzo de nuestro viaje juntos: nuestra boda. 🤍\n\nPueden ver su invitación personalizada y confirmar su asistencia aquí:\n${guestLink(guest)}\n\nLos esperamos el 30 de enero de 2027. ⛩️`;
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
 }
 

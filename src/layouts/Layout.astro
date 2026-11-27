@@ -6,11 +6,11 @@ export interface Props {
   noindex?: boolean;
 }
 
-const { title = "¡La Gran Alianza! Boda de Debora & Pablo", noindex = false } = Astro.props;
+const { title = "Debora & Pablo · 30 de enero de 2027", noindex = false } = Astro.props;
 const site = Astro.site ?? new URL('https://pablodiaz1920.github.io');
 const currentUrl = new URL(Astro.url.pathname, site);
-const ogImage = new URL('/invitaciones-boda-anime/Invitaciones2.jpeg', site).href;
-const description = "Débora & Pablo se casan el 30 de Enero de 2027. Únete a nuestra Gran Alianza Shinobi-Pirata en una boda temática de anime con estilo ninja y pirata.";
+const ogImage = new URL('/invitaciones-boda-anime/og-image.jpg', site).href;
+const description = "Débora & Pablo se casan el 30 de Enero de 2027. Te invitamos a celebrar con nosotros el comienzo de nuestro viaje juntos, en una boda inspirada en la elegancia y la serenidad de Japón.";
 ---
 
 <!doctype html>
@@ -23,7 +23,7 @@ const description = "Débora & Pablo se casan el 30 de Enero de 2027. Únete a n
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <meta name="keywords" content="boda, anime, shinobi, pirata, one piece, naruto, boda temática, débora, pablo, república dominicana, santo domingo" />
+    <meta name="keywords" content="boda, invitación de boda, japón, sakura, boda inspirada en Japón, débora, pablo, república dominicana, santo domingo" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -39,7 +39,7 @@ const description = "Débora & Pablo se casan el 30 de Enero de 2027. Únete a n
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Montserrat:wght@300;400;600;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 

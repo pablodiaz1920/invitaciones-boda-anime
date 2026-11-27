@@ -219,7 +219,7 @@ function showBanner(inv) {
   const cta = $('personalized-cta');
   if (!banner || !text) return;
   const passes = Number(inv.passes);
-  text.innerHTML = `¡Hola, <strong>${escHtml(inv.name)}</strong>! Hemos reservado <strong>${passes} ${passes === 1 ? 'pase' : 'pases'}</strong> para ti en nuestra Gran Alianza.`;
+  text.innerHTML = `¡Hola, <strong>${escHtml(inv.name)}</strong>! Hemos reservado <strong>${passes} ${passes === 1 ? 'pase' : 'pases'}</strong> para ti en nuestra celebración.`;
   if (cta) cta.textContent = inv.rsvp_status ? 'Ver mi respuesta' : 'Confirmar Ahora';
   show(banner);
 }
@@ -275,7 +275,7 @@ function showConfirmedView(justSubmitted = false) {
   const going = data.rsvp_status === 'yes';
 
   $('rsvp-confirmed-title').textContent = justSubmitted
-    ? (going ? '¡Misión Registrada Exitosamente!' : '¡Gracias por avisarnos!')
+    ? (going ? '¡Confirmación recibida con cariño!' : '¡Gracias por avisarnos!')
     : (going ? '¡Ya confirmaste tu asistencia!' : 'Ya registramos tu respuesta');
 
   const icon = $('rsvp-confirmed-icon');

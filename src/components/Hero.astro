@@ -6,28 +6,29 @@ import heroImg from '../assets/IMG_0922.webp';
 <section id="inicio" class="relative min-h-screen flex items-center justify-center pt-6 pb-12 px-4 md:px-8">
   <div class="max-w-5xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
     <div class="lg:col-span-7 flex justify-center order-1 lg:order-2 px-2">
-      <figure class="anim-scale-in relative max-w-sm md:max-w-md w-full rounded-2xl overflow-hidden shadow-2xl anime-border bg-white">
+      <figure class="anim-scale-in relative max-w-sm md:max-w-md w-full rounded-sm p-3 pb-0 vintage-frame bg-white">
         <Image
           src={heroImg}
-          alt="Debora y Pablo en Konoha"
+          alt="Debora y Pablo"
           width={1024}
           widths={[400, 600, 800, 1024]}
           sizes="(min-width: 768px) 448px, 90vw"
           quality={80}
-          class="w-full h-auto block"
+          class="w-full h-auto block rounded-[2px]"
           loading="eager"
           fetchpriority="high"
         />
-        <figcaption class="bg-stone-950 text-white text-center px-4 py-3 md:py-4">
-          <span class="block text-xs md:text-sm tracking-widest uppercase font-semibold text-pirate-gold">Konoha & Grand Line se unen</span>
-          <span class="block font-serif-elegant italic text-sm md:text-lg mt-1">"Nuestro camino ninja es amarnos para siempre"</span>
+        <figcaption class="text-center px-4 py-4 md:py-5">
+          <span class="block text-xs md:text-sm tracking-[0.3em] uppercase font-semibold text-wedding-gold">Dos caminos, un mismo destino</span>
+          <span class="block font-serif-elegant italic text-base md:text-xl mt-1 text-stone-700">“En todos los viajes, tú eres mi hogar”</span>
         </figcaption>
       </figure>
     </div>
 
     <div class="lg:col-span-5 text-center lg:text-left space-y-6 order-2 lg:order-1 px-2">
-      <div class="anim-fade-in-up inline-block px-4 py-1.5 rounded-full bg-rose-100 text-wedding-rose text-xs tracking-widest font-bold uppercase">
-        ¡La Gran Alianza Shinobi-Pirata!
+      <div class="anim-fade-in-up flex items-center justify-center lg:justify-start gap-3 text-wedding-rose text-xs tracking-[0.3em] font-semibold uppercase">
+        <span class="hanko" aria-hidden="true">縁</span>
+        <span>Nos casamos</span>
       </div>
       <h1 class="anim-fade-in-up font-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-wedding-rose leading-tight">
         Debora <br>
@@ -35,10 +36,10 @@ import heroImg from '../assets/IMG_0922.webp';
         Pablo
       </h1>
       <p class="anim-fade-in-up font-serif-elegant text-base md:text-xl text-stone-700 italic">
-        ¡Hemos decidido emprender el viaje más importante de nuestras vidas y queremos que seas parte de nuestra tripulación!
+        Con el corazón lleno de gratitud, te invitamos a acompañarnos en el comienzo del viaje más hermoso de nuestras vidas.
       </p>
 
-      <div class="anim-fade-in-up p-3 md:p-4 rounded-xl bg-orange-50 border border-orange-200 inline-flex items-center space-x-4 mx-auto lg:mx-0">
+      <div class="anim-fade-in-up p-3 md:p-4 rounded-xl bg-white/70 border border-amber-200/70 inline-flex items-center space-x-4 mx-auto lg:mx-0">
         <div class="text-center bg-wedding-rose text-white rounded-lg p-2 min-w-[60px] md:min-w-[70px]">
           <span class="block text-xxs uppercase font-bold tracking-wider">ENE</span>
           <span class="block text-xl md:text-2xl font-bold font-title">30</span>
@@ -50,13 +51,13 @@ import heroImg from '../assets/IMG_0922.webp';
       </div>
 
       <div class="anim-fade-in-up flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-2">
-        <a href="#rsvp" class="bg-linear-to-r from-pirate-red to-ninja-red text-white hover:scale-105 active:scale-95 transition shadow-lg px-6 py-3 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm flex items-center justify-center space-x-2">
+        <a href="#rsvp" class="bg-wedding-rose text-white hover:brightness-110 hover:scale-105 active:scale-95 transition shadow-lg px-6 py-3 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm flex items-center justify-center space-x-2">
           <i class="fa-solid fa-envelope-open-text"></i>
           <span>Confirmar Asistencia</span>
         </a>
         <a href="#detalles" class="px-6 py-3 rounded-full border border-rose-300 hover:border-rose-500 text-wedding-rose font-bold uppercase tracking-wider text-xs md:text-sm hover:bg-rose-50 transition flex items-center justify-center space-x-2">
-          <i class="fa-solid fa-compass"></i>
-          <span>Ver Coordenadas</span>
+          <i class="fa-solid fa-location-dot"></i>
+          <span>Ver Detalles</span>
         </a>
       </div>
     </div>
